@@ -1,0 +1,1601 @@
+<html><head><base href="https://"><title>Lama TD</title>
+<style>
+    body { margin: 0; overflow: hidden; }
+    #gameCanvas { 
+        background: #65A765;
+        width: 100vw;
+        height: 100vh;
+    }
+    #towerSelection {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+    }
+    .tower-select-btn {
+        padding: 10px 20px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    .tower-select-btn:hover {
+        background: #45a049;
+    }
+    .tower-select-btn[data-tower="semipro"] {
+        background: #8B4513; /* Brown color for the Semi-Pro tower button */
+    }
+
+    .tower-select-btn[data-tower="semipro"]:hover {
+        background: #654321;
+    }
+    .tower-select-btn[data-tower="pro"] {
+        background: #2196F3; /* Blue color for the Pro tower button */
+    }
+
+    .tower-select-btn[data-tower="pro"]:hover {
+        background: #1976D2;
+    }
+    #countdown {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 48px;
+        color: #333;
+        font-family: Arial, sans-serif;
+    }
+    #tabMenu {
+        margin-bottom: 10px;
+    }
+
+    .tab-btn {
+        padding: 8px 16px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px 5px 0 0;
+        margin-right: 2px;
+    }
+
+    .tab-btn.active {
+        background: #45a049;
+    }
+
+    .tab-content {
+        display: none;
+        position: fixed;
+        top: 60px;
+        right: 20px;
+        background: rgba(255,255,255,0.9);
+        padding: 15px;
+        border-radius: 5px;
+        transition: opacity 0.5s;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+    .modifier-btn {
+        display: block;
+        margin: 5px 0;
+        padding: 5px 10px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+    .modifier-btn:hover {
+        background: #45a049;
+    }
+    #lives, #wave, #money {
+        position: fixed;
+        left: 20px;
+        font-size: 24px;
+        color: #333;
+        font-family: Arial, sans-serif;
+    }
+    #lives { top: 20px; }
+    #wave { top: 60px; }
+    #money { top: 100px; }
+    #gameOver {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 72px;
+        color: red;
+        font-family: Arial, sans-serif;
+        display: none;
+    }
+    #upgradeMenu {
+        position: fixed;
+        display: none;
+        background: rgba(255,255,255,0.9);
+        padding: 15px;
+        border-radius: 5px;
+        min-width: 200px;
+        z-index: 1000;
+    }
+    .upgrade-btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+        padding: 5px 10px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+    .upgrade-btn:hover {
+        background: #45a049;
+    }
+    .upgrade-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
+    #towerStats, #nextLevelStats {
+        margin: 10px 0;
+        font-size: 14px;
+        color: #333;
+    }
+    #towerStats p, #nextLevelStats p {
+        margin: 2px 0;
+    }
+    #retryButton {
+        position: fixed;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 15px 30px;
+        font-size: 24px;
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none;
+    }
+
+    #retryButton:hover {
+        background-color: #ff5252;
+    }
+    #victoryScreen {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    #victoryScreen h1 {
+        color: gold;
+        font-size: 72px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    #victoryScreen h2 {
+        color: #4CAF50;
+        font-size: 36px;
+    }
+    .path-btn {
+        padding: 5px 10px;
+        margin: 0 5px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    .path-btn.selected {
+        background: #45a049;
+    }
+
+    .path-btn.disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
+    #mainMenu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    #mainMenu h1 {
+        color: #4CAF50;
+        font-size: 48px;
+        margin-bottom: 30px;
+        font-family: Arial, sans-serif;
+    }
+
+    .menu-btn {
+        padding: 15px 30px;
+        font-size: 24px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 10px;
+        min-width: 200px;
+    }
+
+    .menu-btn:hover {
+        background: #45a049;
+    }
+    #difficultySelect {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .menu-btn.selected {
+        background: #45a049;
+        border: 2px solid #fff;
+    }
+    #easyBtn {
+        background: #4CAF50 !important;
+    }
+    #easyBtn:hover {
+        background: #45a049 !important;
+    }
+
+    #normalBtn {
+        background: #FFD700 !important;
+    }
+    #normalBtn:hover {
+        background: #DAA520 !important;
+    }
+
+    #hardBtn {
+        background: #ff6b6b !important;
+    }
+    #hardBtn:hover {
+        background: #ff5252 !important;
+    }
+    #extremeBtn {
+        background: #2D0A31 !important; 
+        color: #8B0000 !important; 
+    }
+
+    #extremeBtn:hover {
+        background: #1A0A1F !important; 
+    }
+</style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="mainMenu">
+        <h1>Lama TD</h1>
+        <button class="menu-btn" id="playBtn">Play</button>
+        <div id="difficultySelect" style="display: none;">
+            <button class="menu-btn" id="easyBtn">Easy Mode</button>
+            <button class="menu-btn" id="normalBtn">Normal Mode</button>
+            <button class="menu-btn" id="hardBtn">Hard Mode</button>
+            <button class="menu-btn" id="extremeBtn">ROTTING</button>
+            <button class="menu-btn" id="startGameBtn">Start Game</button>
+        </div>
+        <button class="menu-btn" id="howToPlayBtn">How To Play</button>
+    </div>
+    <div id="towerSelection">
+        <button class="tower-select-btn" data-tower="noob">Place Noob Tower (&#x24;50)</button>
+        <button class="tower-select-btn" data-tower="casual">Place Casual Tower (&#x24;150)</button>
+        <button class="tower-select-btn" data-tower="intermediate">Place Intermediate Tower (&#x24;250)</button>
+        <button class="tower-select-btn" data-tower="semipro">Place Semi-Pro Tower (&#x24;300)</button>
+        <button class="tower-select-btn" data-tower="pro">Place Pro Tower (&#x24;500)</button>
+    </div>
+    <div id="countdown">20</div>
+    <div id="lives">Lives: 50</div>
+    <div id="wave">Wave: 1</div>
+    <div id="money">Money: &#x24;100</div>
+    <div id="gameOver">GAME OVER</div>
+    <button id="retryButton">Retry</button>
+    <div id="tabMenu" style="position: fixed; top: 20px; right: 20px;">
+        <button class="tab-btn active" data-tab="modifiers">Modifiers</button>
+        <button class="tab-btn" data-tab="difficulty">Difficulty</button>
+    </div>
+
+    <div id="modifiersMenu" class="tab-content active">
+        <h3>Modifiers</h3>
+        <button class="modifier-btn" id="fasterEnemiesBtn">Fast Enemies: OFF</button>
+        <button class="modifier-btn" id="strongerEnemiesBtn">Strong Enemies: OFF</button>
+        <button class="modifier-btn" id="strongestEnemiesBtn">Strongest Enemies: OFF</button>
+        <button class="modifier-btn" id="sharpEyesBtn">Sharp Eyes: OFF</button>
+        <button class="modifier-btn" id="biggerMusclesBtn">Bigger Muscles: OFF</button>
+        <button class="modifier-btn" id="lazyEnemiesBtn">Lazy Enemies: OFF</button>
+        <button class="modifier-btn" id="weakerEnemiesBtn">Weaker Enemies: OFF</button>
+    </div>
+
+    <div id="difficultyMenu" class="tab-content">
+        <h3>Difficulty Settings</h3>
+        <button class="modifier-btn" id="difficultyBtn">Difficulty: Normal</button>
+    </div>
+
+    <div id="upgradeMenu">
+        <h3>Tower Upgrades</h3>
+        <div id="towerStats">
+            <p>Current Stats:</p>
+            <p id="damageText">Damage: 1</p>
+            <p id="rangeText">Range: 100</p>
+            <p id="fireRateText">Fire Rate: 1/s</p>
+        </div>
+        <div id="nextLevelStats" style="display: none">
+            <p>Next Level Stats:</p>
+            <p id="nextDamageText">Damage: 1</p>
+            <p id="nextRangeText">Range: 150</p>
+            <p id="nextFireRateText">Fire Rate: 1/s</p>
+        </div>
+        <div id="upgradePaths" style="margin-top: 10px;">
+            <h4>Upgrade Path</h4>
+            <button class="path-btn" data-path="1">Path 1</button>
+            <button class="path-btn" data-path="2">Path 2</button>
+            <button class="path-btn" data-path="3">Path 3</button>
+        </div>
+        <button class="upgrade-btn" id="upgradeBtn">Upgrade to Level 2 (&#x24;50)</button>
+        <button class="upgrade-btn" id="sellBtn">Sell Tower</button>
+    </div>
+
+    <div id="victoryScreen" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+        <h1 style="color: gold; font-size: 72px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">VICTORY!</h1>
+        <h2 style="color: #4CAF50; font-size: 36px;">You&apos;ve defeated the Final Boss!</h2>
+    </div>
+
+<script>const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let mainMenuVisible = true;
+let selectedDifficulty = 'normal';
+let skipCountdown = false;
+function hideMainMenu() {
+  document.getElementById('mainMenu').style.display = 'none';
+  mainMenuVisible = false;
+  if (!skipCountdown) {
+    startCountdown();
+  } else {
+    countdownElement.style.display = 'none';
+    gameState.gameStarted = true;
+  }
+}
+function showMainMenu() {
+  document.getElementById('mainMenu').style.display = 'flex';
+  mainMenuVisible = true;
+  resetGame();
+}
+function showHowToPlay() {
+  alert("How to Play Lama TD:\n\n" + "1. Place towers to defend against waves of enemies\n" + "2. Different towers have different abilities and costs\n" + "3. Upgrade towers by clicking on them\n" + "4. Choose upgrade paths to specialize your towers\n" + "5. Survive all waves and defeat the final boss!\n\n" + "Tips:\n" + "- Use modifiers to adjust difficulty\n" + "- Sell towers to get back 50% of their cost\n" + "- Complete waves for bonus money");
+}
+const gameState = {
+  towers: [],
+  enemies: [],
+  money: 100,
+  lives: 50,
+  placing: false,
+  path: [{
+    x: 0,
+    y: canvas.height / 2
+  }, {
+    x: canvas.width,
+    y: canvas.height / 2
+  }],
+  gameStarted: false,
+  difficulty: 1,
+  fasterEnemies: false,
+  strongerEnemies: false,
+  strongestEnemies: false,
+  sharpEyes: false,
+  biggerMuscles: false,
+  gameOver: false,
+  currentWave: 1,
+  enemiesInWave: 3,
+  enemiesSpawned: 0,
+  waveComplete: true,
+  waveBonusGiven: false,
+  selectedTowerType: 'noob',
+  lazyEnemies: false,
+  weakerEnemies: false
+};
+let countdownTime = 20;
+const countdownElement = document.getElementById('countdown');
+const modifiersMenu = document.getElementById('modifiersMenu');
+const livesElement = document.getElementById('lives');
+const waveElement = document.getElementById('wave');
+const gameOverElement = document.getElementById('gameOver');
+let placementGhost = null;
+const TREE_COUNT = 20;
+const trees = [];
+for (let i = 0; i < TREE_COUNT; i++) {
+  let x, y;
+  let validPosition = false;
+  while (!validPosition) {
+    x = Math.random() * canvas.width;
+    y = Math.random() * canvas.height;
+    if (Math.abs(y - canvas.height / 2) < 80) continue;
+    const tooCloseToTrees = trees.some(tree => Math.hypot(x - tree.x, y - tree.y) < 100);
+    if (!tooCloseToTrees) {
+      validPosition = true;
+    }
+  }
+  trees.push({
+    x,
+    y
+  });
+}
+const CLIFF_COUNT = 8;
+const cliffs = [];
+for (let i = 0; i < CLIFF_COUNT; i++) {
+  let x, y;
+  let validPosition = false;
+  while (!validPosition) {
+    x = Math.random() * canvas.width;
+    y = Math.random() * canvas.height;
+    if (Math.abs(y - canvas.height / 2) < 20) continue;
+    const tooCloseToTrees = trees.some(tree => Math.hypot(x - tree.x, y - tree.y) < 60);
+    const tooCloseToCliffs = cliffs.some(cliff => Math.hypot(x - cliff.x, y - cliff.y) < 80);
+    if (!tooCloseToTrees && !tooCloseToCliffs) {
+      validPosition = true;
+    }
+  }
+  cliffs.push({
+    x,
+    y,
+    radius: 30
+  });
+}
+function startCountdown() {
+  if (mainMenuVisible) return;
+  countdownTime = 20;
+  const countdownInterval = setInterval(() => {
+    countdownTime--;
+    countdownElement.textContent = countdownTime;
+    if (countdownTime <= 0) {
+      clearInterval(countdownInterval);
+      countdownElement.style.display = 'none';
+      document.querySelectorAll('.tab-content').forEach(menu => {
+        menu.style.opacity = '0';
+        setTimeout(() => {
+          menu.style.display = 'none';
+        }, 500);
+      });
+      document.getElementById('tabMenu').style.display = 'none';
+      gameState.gameStarted = true;
+    }
+  }, 1000);
+}
+startCountdown();
+class Tower {
+  constructor(x, y, type = 'noob') {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    if (type === 'noob') {
+      this.range = 100;
+      this.damage = 1;
+      this.fireRate = 1000;
+      this.name = "Noob";
+      this.level = 1;
+      this.totalCost = 50;
+    } else if (type === 'casual') {
+      this.range = 200;
+      this.damage = 0;
+      this.fireRate = 2000;
+      this.name = "Casual";
+      this.level = 1;
+      this.totalCost = 150;
+      this.slowAmount = 0.2;
+      this.slowDuration = 10000;
+    } else if (type === 'intermediate') {
+      this.range = 100;
+      this.damage = 1;
+      this.fireRate = 333;
+      this.name = "Intermediate";
+      this.level = 1;
+      this.totalCost = 250;
+    } else if (type === 'semipro') {
+      this.range = 300;
+      this.damage = 10;
+      this.fireRate = 2000;
+      this.name = "Semi-Pro";
+      this.level = 1;
+      this.totalCost = 300;
+    } else if (type === 'pro') {
+      this.range = 300;
+      this.damage = 2;
+      this.fireRate = 200;
+      this.name = "Pro";
+      this.level = 1;
+      this.totalCost = 500;
+    }
+    this.lastShot = 0;
+    this.selectedPaths = [];
+    this.maxPaths = 2;
+  }
+  selectPath(pathNum) {
+    if (this.selectedPaths.length < this.maxPaths && !this.selectedPaths.includes(pathNum)) {
+      this.selectedPaths.push(pathNum);
+      return true;
+    }
+    return false;
+  }
+  upgrade() {
+    this.level++;
+    if (this.type === 'noob') {
+      switch (this.level) {
+        case 2:
+          this.applyPathUpgrades(2);
+          this.totalCost += 50;
+          break;
+        case 3:
+          this.applyPathUpgrades(3);
+          this.totalCost += 100;
+          break;
+        case 4:
+          this.applyPathUpgrades(4);
+          this.totalCost += 200;
+          break;
+      }
+    } else if (this.type === 'casual') {
+      switch (this.level) {
+        case 2:
+          this.applyPathUpgrades(2);
+          this.slowAmount = 0.3;
+          this.damage = 1;
+          this.totalCost += 200;
+          break;
+        case 3:
+          this.applyPathUpgrades(3);
+          this.slowAmount = 0.4;
+          this.damage = 2;
+          this.totalCost += 300;
+          break;
+        case 4:
+          this.applyPathUpgrades(4);
+          this.slowAmount = 0.5;
+          this.damage = 3;
+          this.totalCost += 400;
+          break;
+      }
+    } else if (this.type === 'intermediate') {
+      switch (this.level) {
+        case 2:
+          this.applyPathUpgrades(2);
+          this.range = 150;
+          this.totalCost += 350;
+          break;
+        case 3:
+          this.applyPathUpgrades(3);
+          this.damage = 2;
+          this.fireRate = 250;
+          this.totalCost += 500;
+          break;
+        case 4:
+          this.applyPathUpgrades(4);
+          this.range = 200;
+          this.fireRate = 200;
+          this.totalCost += 750;
+          break;
+      }
+    } else if (this.type === 'semipro') {
+      switch (this.level) {
+        case 2:
+          this.applyPathUpgrades(2);
+          this.damage = 15;
+          this.range = 350;
+          this.totalCost += 350;
+          break;
+        case 3:
+          this.applyPathUpgrades(3);
+          this.damage = 20;
+          this.range = 400;
+          this.totalCost += 500;
+          break;
+        case 4:
+          this.applyPathUpgrades(4);
+          this.damage = 30;
+          this.range = 500;
+          this.fireRate = 1667;
+          this.totalCost += 1000;
+          break;
+      }
+    } else if (this.type === 'pro') {
+      switch (this.level) {
+        case 2:
+          this.applyPathUpgrades(2);
+          this.damage = 3;
+          this.range = 350;
+          this.totalCost += 400;
+          break;
+        case 3:
+          this.applyPathUpgrades(3);
+          this.damage = 4;
+          this.range = 400;
+          this.totalCost += 600;
+          break;
+        case 4:
+          this.applyPathUpgrades(4);
+          this.damage = 5;
+          this.range = 500;
+          this.fireRate = 100;
+          this.totalCost += 1200;
+          break;
+      }
+    }
+  }
+  applyPathUpgrades(level) {
+    this.selectedPaths.forEach(path => {
+      const upgrades = this.getPathUpgrades(path, level);
+      this.damage += upgrades.damage || 0;
+      this.range += upgrades.range || 0;
+      this.fireRate = upgrades.fireRate || this.fireRate;
+    });
+  }
+  getPathUpgrades(path, level) {
+    const upgrades = {
+      noob: {
+        1: {
+          2: {
+            damage: 1
+          },
+          3: {
+            damage: 2
+          },
+          4: {
+            damage: 3
+          }
+        },
+        2: {
+          2: {
+            range: 50
+          },
+          3: {
+            range: 75
+          },
+          4: {
+            range: 100
+          }
+        },
+        3: {
+          2: {
+            fireRate: 800
+          },
+          3: {
+            fireRate: 600
+          },
+          4: {
+            fireRate: 400
+          }
+        }
+      },
+      casual: {
+        1: {
+          2: {
+            damage: 1
+          },
+          3: {
+            damage: 2
+          },
+          4: {
+            damage: 3
+          }
+        },
+        2: {
+          2: {
+            range: 50
+          },
+          3: {
+            range: 75
+          },
+          4: {
+            range: 100
+          }
+        },
+        3: {
+          2: {
+            slowAmount: 0.1
+          },
+          3: {
+            slowAmount: 0.2
+          },
+          4: {
+            slowAmount: 0.3
+          }
+        }
+      },
+      intermediate: {
+        1: {
+          2: {
+            damage: 1
+          },
+          3: {
+            damage: 2
+          },
+          4: {
+            damage: 3
+          }
+        },
+        2: {
+          2: {
+            range: 50
+          },
+          3: {
+            range: 75
+          },
+          4: {
+            range: 100
+          }
+        },
+        3: {
+          2: {
+            fireRate: 250
+          },
+          3: {
+            fireRate: 200
+          },
+          4: {
+            fireRate: 150
+          }
+        }
+      },
+      semipro: {
+        1: {
+          2: {
+            damage: 5
+          },
+          3: {
+            damage: 10
+          },
+          4: {
+            damage: 15
+          }
+        },
+        2: {
+          2: {
+            range: 50
+          },
+          3: {
+            range: 75
+          },
+          4: {
+            range: 100
+          }
+        },
+        3: {
+          2: {
+            fireRate: 1500
+          },
+          3: {
+            fireRate: 1000
+          },
+          4: {
+            fireRate: 500
+          }
+        }
+      },
+      pro: {
+        1: {
+          2: {
+            damage: 1
+          },
+          3: {
+            damage: 2
+          },
+          4: {
+            damage: 3
+          }
+        },
+        2: {
+          2: {
+            range: 50
+          },
+          3: {
+            range: 75
+          },
+          4: {
+            range: 100
+          }
+        },
+        3: {
+          2: {
+            fireRate: 150
+          },
+          3: {
+            fireRate: 100
+          },
+          4: {
+            fireRate: 50
+          }
+        }
+      }
+    };
+    return upgrades[this.type]?.[path]?.[level] || {};
+  }
+  sell() {
+    return Math.floor(this.totalCost * 0.5);
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
+    ctx.fillStyle = '#4a4a4a';
+    ctx.fill();
+    ctx.beginPath();
+    const displayRange = gameState.sharpEyes ? this.range * 1.5 : this.range;
+    ctx.arc(this.x, this.y, displayRange, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.stroke();
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${this.name} Lv${this.level}`, this.x, this.y - 30);
+  }
+  shoot() {
+    const now = Date.now();
+    if (now - this.lastShot >= this.fireRate) {
+      for (let enemy of gameState.enemies) {
+        const effectiveRange = gameState.sharpEyes ? this.range * 1.5 : this.range;
+        const dist = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+        if (dist <= effectiveRange) {
+          const effectiveDamage = gameState.biggerMuscles ? this.damage * 2 : this.damage;
+          if (this.damage > 0) {
+            enemy.hp -= effectiveDamage;
+          }
+          if (this.type === 'casual') {
+            enemy.slowEffect = this.slowAmount;
+            enemy.slowDuration = this.slowDuration;
+            enemy.slowStart = now;
+          }
+          this.lastShot = now;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(enemy.x, enemy.y);
+          if (this.type === 'casual') {
+            ctx.strokeStyle = 'blue';
+          } else {
+            ctx.strokeStyle = 'yellow';
+          }
+          ctx.stroke();
+          break;
+        }
+      }
+    }
+  }
+}
+class Enemy {
+  constructor(type = 'normal') {
+    this.x = 0;
+    this.y = canvas.height / 2;
+    this.type = type;
+    if (type === 'boss') {
+      this.baseHp = 1250;
+      this.size = 25;
+      this.baseSpeed = 0.8;
+    } else {
+      this.size = 15;
+      this.baseHp = type === 'tank' ? 4.5 : 1.5;
+      if (type === 'fast') {
+        this.baseSpeed = 2.67;
+      } else if (type === 'tank') {
+        this.baseSpeed = 1.33;
+      } else {
+        this.baseSpeed = 2;
+      }
+    }
+    let modifiedHp = this.baseHp;
+    modifiedHp *= (selectedDifficulty === 'easy' ? 0.75 : selectedDifficulty === 'hard' ? 1.5 : 1) * gameState.difficulty;
+    if (gameState.strongestEnemies) {
+      modifiedHp *= 3;
+    } else if (gameState.strongerEnemies) {
+      modifiedHp *= 2;
+    }
+    if (gameState.weakerEnemies) {
+      modifiedHp /= 2;
+    }
+    this.hp = modifiedHp;
+    let modifiedSpeed = this.baseSpeed;
+    if (gameState.fasterEnemies) {
+      modifiedSpeed *= 1.5;
+    }
+    if (gameState.lazyEnemies) {
+      modifiedSpeed /= 2;
+    }
+    this.speed = modifiedSpeed;
+    this.slowEffect = 0;
+    this.slowDuration = 0;
+    this.slowStart = 0;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    if (this.type === 'boss') {
+      ctx.fillStyle = 'gold';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(this.x - 15, this.y - 25);
+      ctx.lineTo(this.x - 10, this.y - 35);
+      ctx.lineTo(this.x - 5, this.y - 25);
+      ctx.lineTo(this.x, this.y - 35);
+      ctx.lineTo(this.x + 5, this.y - 25);
+      ctx.lineTo(this.x + 10, this.y - 35);
+      ctx.lineTo(this.x + 15, this.y - 25);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.strokeStyle = '#DAA520';
+      ctx.stroke();
+    } else if (this.type === 'fast') {
+      ctx.fillStyle = 'rgba(200,200,255,0.8)';
+    } else if (this.type === 'tank') {
+      ctx.fillStyle = 'rgba(200,200,200,0.8)';
+    } else {
+      ctx.fillStyle = 'rgba(255,200,200,0.8)';
+    }
+    ctx.fill();
+    let maxHp = this.baseHp;
+    maxHp *= (selectedDifficulty === 'easy' ? 0.75 : selectedDifficulty === 'hard' ? 1.5 : 1) * gameState.difficulty;
+    if (this.type === 'fast') {
+      ctx.fillStyle = 'blue';
+    } else if (this.type === 'tank') {
+      ctx.fillStyle = 'grey';
+    } else if (this.type === 'boss') {
+      ctx.fillStyle = '#FFD700';
+    } else {
+      ctx.fillStyle = 'red';
+    }
+    ctx.fillRect(this.x - 15, this.y - 40, 30 * (this.hp / maxHp), 5);
+  }
+  move() {
+    let currentSpeed = this.speed;
+    if (this.slowEffect > 0) {
+      if (Date.now() - this.slowStart > this.slowDuration) {
+        this.slowEffect = 0;
+      } else {
+        currentSpeed *= 1 - this.slowEffect;
+      }
+    }
+    this.x += currentSpeed;
+  }
+}
+function resetGame() {
+  gameState.enemies = [];
+  gameState.towers = [];
+  gameState.money = selectedDifficulty === 'easy' ? 200 : selectedDifficulty === 'hard' ? 50 : selectedDifficulty === 'extreme' ? 25 : 100;
+  gameState.lives = selectedDifficulty === 'easy' ? 100 : selectedDifficulty === 'hard' ? 25 : selectedDifficulty === 'extreme' ? 10 : 50;
+  skipCountdown = selectedDifficulty === 'extreme';
+  gameState.placing = false;
+  gameState.gameStarted = false;
+  gameState.difficulty = 1;
+  gameState.fasterEnemies = false;
+  gameState.strongerEnemies = false;
+  gameState.strongestEnemies = false;
+  gameState.sharpEyes = false;
+  gameState.biggerMuscles = false;
+  gameState.gameOver = false;
+  gameState.currentWave = 1;
+  gameState.enemiesInWave = 3;
+  gameState.enemiesSpawned = 0;
+  gameState.waveComplete = true;
+  gameState.waveBonusGiven = false;
+  gameState.selectedTowerType = 'noob';
+  gameState.lazyEnemies = false;
+  gameState.weakerEnemies = false;
+  countdownTime = 20;
+  placementGhost = null;
+  selectedTower = null;
+  gameState.enemies.forEach(enemy => {
+    enemy.slowEffect = 0;
+    enemy.slowDuration = 0;
+    enemy.slowStart = 0;
+  });
+  showMainMenu();
+}
+document.getElementById('retryButton').addEventListener('click', resetGame);
+function spawnEnemy() {
+  if (!gameState.gameStarted || gameState.gameOver) return;
+  if (gameState.waveComplete && gameState.enemies.length === 0) {
+    gameState.enemiesSpawned = 0;
+    gameState.waveComplete = false;
+    gameState.enemiesInWave = 3 + (gameState.currentWave - 1) * 2;
+  }
+  if (!gameState.waveComplete && gameState.enemiesSpawned < gameState.enemiesInWave) {
+    const spawnChance = selectedDifficulty === 'easy' ? 0.015 : selectedDifficulty === 'hard' ? 0.025 : selectedDifficulty === 'extreme' ? 0.035 : 0.02;
+    if (Math.random() < spawnChance) {
+      let enemyType = 'normal';
+      const roll = Math.random();
+      if (gameState.currentWave === 20 && gameState.enemiesSpawned === 0) {
+        enemyType = 'boss';
+      } else if (gameState.currentWave >= 10 && roll < 0.2) {
+        enemyType = 'tank';
+      } else if (gameState.currentWave >= 5 && roll < 0.3) {
+        enemyType = 'fast';
+      }
+      gameState.enemies.push(new Enemy(enemyType));
+      gameState.enemiesSpawned++;
+      if (gameState.enemiesSpawned >= gameState.enemiesInWave) {
+        gameState.waveComplete = true;
+        gameState.currentWave++;
+        waveElement.textContent = `Wave: ${gameState.currentWave}`;
+      }
+    }
+  }
+}
+document.getElementById('towerSelection').addEventListener('click', e => {
+  if (e.target.classList.contains('tower-select-btn')) {
+    const towerType = e.target.dataset.tower;
+    const baseCosts = {
+      'noob': 50,
+      'casual': 150,
+      'intermediate': 250,
+      'semipro': 300,
+      'pro': 500
+    };
+    const cost = Math.floor(baseCosts[towerType] * getDifficultyMultiplier());
+    if (gameState.money >= cost && !gameState.gameOver && !gameState.placing) {
+      gameState.selectedTowerType = towerType;
+      gameState.placing = true;
+      placementGhost = null;
+    }
+  }
+});
+const upgradeMenu = document.getElementById('upgradeMenu');
+const upgradeBtn = document.getElementById('upgradeBtn');
+const sellBtn = document.getElementById('sellBtn');
+let selectedTower = null;
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  if (gameState.placing && !gameState.gameOver) {
+    const onCliff = isOnCliff(x, y);
+    const canPlace = !gameState.towers.some(tower => Math.hypot(x - tower.x, y - tower.y) < 40) && !isOnPath(x, y) && !isOnTree(x, y) && (gameState.selectedTowerType === 'semipro' ? onCliff : !onCliff);
+    if (canPlace) {
+      const baseCosts = {
+        'noob': 50,
+        'casual': 150,
+        'intermediate': 250,
+        'semipro': 300,
+        'pro': 500
+      };
+      const cost = Math.floor(baseCosts[gameState.selectedTowerType] * getDifficultyMultiplier());
+      if (gameState.money >= cost) {
+        gameState.towers.push(new Tower(x, y, gameState.selectedTowerType));
+        gameState.money -= cost;
+        gameState.placing = false;
+        placementGhost = null;
+      }
+    }
+  } else {
+    selectedTower = gameState.towers.find(tower => Math.hypot(x - tower.x, y - tower.y) < 20);
+    if (!selectedTower) {
+      upgradeMenu.style.display = 'none';
+      return;
+    }
+    upgradeMenu.style.display = 'block';
+    upgradeMenu.style.left = `${e.clientX}px`;
+    upgradeMenu.style.top = `${e.clientY}px`;
+    if (selectedTower.level < 4) {
+      const upgradeCosts = {
+        'noob': [null, 50, 100, 200],
+        'casual': [null, 200, 300, 400],
+        'intermediate': [null, 350, 500, 750],
+        'semipro': [null, 350, 500, 1000],
+        'pro': [null, 400, 600, 1200]
+      };
+      const nextLevelCost = upgradeCosts[selectedTower.type][selectedTower.level];
+      upgradeBtn.textContent = `Upgrade to Level ${selectedTower.level + 1} ($${nextLevelCost})`;
+      upgradeBtn.disabled = gameState.money < nextLevelCost;
+    } else {
+      upgradeBtn.textContent = 'Max Level';
+      upgradeBtn.disabled = true;
+    }
+    sellBtn.textContent = `Sell Tower ($${selectedTower.sell()})`;
+    document.getElementById('damageText').textContent = `Damage: ${selectedTower.damage}`;
+    document.getElementById('rangeText').textContent = `Range: ${selectedTower.range}`;
+    document.getElementById('fireRateText').textContent = `Fire Rate: ${1000 / selectedTower.fireRate}/s`;
+    const nextLevelStats = document.getElementById('nextLevelStats');
+    if (selectedTower.level < 4) {
+      nextLevelStats.style.display = 'block';
+      let nextDamage = selectedTower.damage;
+      let nextRange = selectedTower.range;
+      let nextFireRate = selectedTower.fireRate;
+      if (selectedTower.type === 'noob') {
+        switch (selectedTower.level + 1) {
+          case 2:
+            nextRange = 150;
+            break;
+          case 3:
+            nextRange = 175;
+            nextDamage = 2;
+            break;
+          case 4:
+            nextRange = 150;
+            nextFireRate = 500;
+            break;
+        }
+      } else if (selectedTower.type === 'casual') {
+        switch (selectedTower.level + 1) {
+          case 2:
+            nextFireRate = 500;
+            break;
+          case 3:
+            nextDamage = 4;
+            nextRange = 250;
+            break;
+          case 4:
+            nextDamage = 3;
+            nextFireRate = 333;
+            break;
+        }
+      } else if (selectedTower.type === 'intermediate') {
+        switch (selectedTower.level + 1) {
+          case 2:
+            nextRange = 150;
+            break;
+          case 3:
+            nextDamage = 2;
+            nextFireRate = 250;
+            break;
+          case 4:
+            nextRange = 200;
+            nextFireRate = 200;
+            break;
+        }
+      } else if (selectedTower.type === 'semipro') {
+        switch (selectedTower.level + 1) {
+          case 2:
+            nextDamage = 15;
+            nextRange = 350;
+            break;
+          case 3:
+            nextDamage = 20;
+            nextRange = 400;
+            break;
+          case 4:
+            nextDamage = 30;
+            nextRange = 500;
+            nextFireRate = 1667;
+            break;
+        }
+      } else if (selectedTower.type === 'pro') {
+        switch (selectedTower.level + 1) {
+          case 2:
+            nextDamage = 3;
+            nextRange = 350;
+            break;
+          case 3:
+            nextDamage = 4;
+            nextRange = 400;
+            break;
+          case 4:
+            nextDamage = 5;
+            nextRange = 500;
+            nextFireRate = 100;
+            break;
+        }
+      }
+      document.getElementById('nextDamageText').textContent = `Damage: ${nextDamage}`;
+      document.getElementById('nextRangeText').textContent = `Range: ${nextRange}`;
+      document.getElementById('nextFireRateText').textContent = `Fire Rate: ${1000 / nextFireRate}/s`;
+    } else {
+      nextLevelStats.style.display = 'none';
+    }
+    if (selectedTower) {
+      const pathButtons = document.querySelectorAll('.path-btn');
+      pathButtons.forEach(btn => {
+        const pathNum = parseInt(btn.dataset.path);
+        btn.classList.remove('selected');
+        btn.classList.remove('disabled');
+        if (selectedTower.selectedPaths.includes(pathNum)) {
+          btn.classList.add('selected');
+        } else if (selectedTower.selectedPaths.length >= selectedTower.maxPaths) {
+          btn.classList.add('disabled');
+        }
+        btn.onclick = () => {
+          if (!btn.classList.contains('disabled')) {
+            if (selectedTower.selectPath(pathNum)) {
+              btn.classList.add('selected');
+              if (selectedTower.selectedPaths.length >= selectedTower.maxPaths) {
+                pathButtons.forEach(b => {
+                  if (!b.classList.contains('selected')) {
+                    b.classList.add('disabled');
+                  }
+                });
+              }
+            }
+          }
+        };
+      });
+    }
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if (gameState.placing) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    placementGhost = {
+      x: x,
+      y: y,
+      isValid: !gameState.towers.some(tower => Math.hypot(x - tower.x, y - tower.y) < 40) && !isOnPath(x, y) && !isOnTree(x, y) && (gameState.selectedTowerType === 'semipro' ? isOnCliff(x, y) : !isOnCliff(x, y))
+    };
+  }
+});
+upgradeBtn.addEventListener('click', () => {
+  if (selectedTower && selectedTower.selectedPaths.length > 0 && selectedTower.level < 4) {
+    const upgradeCosts = {
+      'noob': [null, 50, 100, 200],
+      'casual': [null, 200, 300, 400],
+      'intermediate': [null, 350, 500, 750],
+      'semipro': [null, 350, 500, 1000],
+      'pro': [null, 400, 600, 1200]
+    };
+    const upgradeCost = upgradeCosts[selectedTower.type][selectedTower.level];
+    if (gameState.money >= upgradeCost) {
+      gameState.money -= upgradeCost;
+      selectedTower.upgrade();
+      if (selectedTower) {
+        document.getElementById('damageText').textContent = `Damage: ${selectedTower.damage}`;
+        document.getElementById('rangeText').textContent = `Range: ${selectedTower.range}`;
+        document.getElementById('fireRateText').textContent = `Fire Rate: ${1000 / selectedTower.fireRate}/s`;
+        const nextLevelStats = document.getElementById('nextLevelStats');
+        if (selectedTower.level < 4) {
+          nextLevelStats.style.display = 'block';
+          let nextDamage = selectedTower.damage;
+          let nextRange = selectedTower.range;
+          let nextFireRate = selectedTower.fireRate;
+          if (selectedTower.type === 'noob') {
+            switch (selectedTower.level + 1) {
+              case 2:
+                nextRange = 150;
+                break;
+              case 3:
+                nextRange = 175;
+                nextDamage = 2;
+                break;
+              case 4:
+                nextRange = 150;
+                nextFireRate = 500;
+                break;
+            }
+          } else if (selectedTower.type === 'casual') {
+            switch (selectedTower.level + 1) {
+              case 2:
+                nextFireRate = 500;
+                break;
+              case 3:
+                nextDamage = 4;
+                nextRange = 250;
+                break;
+              case 4:
+                nextDamage = 3;
+                nextFireRate = 333;
+                break;
+            }
+          } else if (selectedTower.type === 'intermediate') {
+            switch (selectedTower.level + 1) {
+              case 2:
+                nextRange = 150;
+                break;
+              case 3:
+                nextDamage = 2;
+                nextFireRate = 250;
+                break;
+              case 4:
+                nextRange = 200;
+                nextFireRate = 200;
+                break;
+            }
+          } else if (selectedTower.type === 'semipro') {
+            switch (selectedTower.level + 1) {
+              case 2:
+                nextDamage = 15;
+                nextRange = 350;
+                break;
+              case 3:
+                nextDamage = 20;
+                nextRange = 400;
+                break;
+              case 4:
+                nextDamage = 30;
+                nextRange = 500;
+                nextFireRate = 1667;
+                break;
+            }
+          } else if (selectedTower.type === 'pro') {
+            switch (selectedTower.level + 1) {
+              case 2:
+                nextDamage = 3;
+                nextRange = 350;
+                break;
+              case 3:
+                nextDamage = 4;
+                nextRange = 400;
+                break;
+              case 4:
+                nextDamage = 5;
+                nextRange = 500;
+                nextFireRate = 100;
+                break;
+            }
+          }
+          document.getElementById('nextDamageText').textContent = `Damage: ${nextDamage}`;
+          document.getElementById('nextRangeText').textContent = `Range: ${nextRange}`;
+          document.getElementById('nextFireRateText').textContent = `Fire Rate: ${1000 / nextFireRate}/s`;
+        } else {
+          nextLevelStats.style.display = 'none';
+        }
+        if (selectedTower.level < 4) {
+          const nextLevelCost = upgradeCosts[selectedTower.type][selectedTower.level + 1];
+          upgradeBtn.textContent = `Upgrade to Level ${selectedTower.level + 1} ($${nextLevelCost})`;
+          upgradeBtn.disabled = gameState.money < nextLevelCost;
+        } else {
+          upgradeBtn.textContent = 'Max Level';
+          upgradeBtn.disabled = true;
+        }
+      }
+    }
+  } else if (!selectedTower) {
+    alert('Please select a tower before upgrading');
+  } else if (selectedTower.level >= 4) {
+    alert('Tower is already at max level');
+  } else if (selectedTower.selectedPaths.length === 0) {
+    alert('Please select at least one upgrade path before upgrading');
+  }
+});
+sellBtn.addEventListener('click', () => {
+  if (selectedTower) {
+    const sellValue = selectedTower.sell();
+    gameState.money += sellValue;
+    gameState.towers = gameState.towers.filter(t => t !== selectedTower);
+    upgradeMenu.style.display = 'none';
+    selectedTower = null;
+  }
+});
+const fasterEnemiesBtn = document.getElementById('fasterEnemiesBtn');
+fasterEnemiesBtn.addEventListener('click', () => {
+  gameState.fasterEnemies = !gameState.fasterEnemies;
+  fasterEnemiesBtn.textContent = `Fast Enemies: ${gameState.fasterEnemies ? 'ON' : 'OFF'}`;
+});
+const strongerEnemiesBtn = document.getElementById('strongerEnemiesBtn');
+strongerEnemiesBtn.addEventListener('click', () => {
+  if (!gameState.strongestEnemies) {
+    gameState.strongerEnemies = !gameState.strongerEnemies;
+    strongerEnemiesBtn.textContent = `Strong Enemies: ${gameState.strongerEnemies ? 'ON' : 'OFF'}`;
+  }
+});
+const strongestEnemiesBtn = document.getElementById('strongestEnemiesBtn');
+strongestEnemiesBtn.addEventListener('click', () => {
+  if (!gameState.strongerEnemies) {
+    gameState.strongestEnemies = !gameState.strongestEnemies;
+    strongestEnemiesBtn.textContent = `Strongest Enemies: ${gameState.strongestEnemies ? 'ON' : 'OFF'}`;
+  }
+});
+const difficultyBtn = document.getElementById('difficultyBtn');
+difficultyBtn.addEventListener('click', () => {
+  if (gameState.difficulty === 1) {
+    gameState.difficulty = 1.5;
+    difficultyBtn.textContent = 'Difficulty: Hard';
+  } else if (gameState.difficulty === 1.5) {
+    gameState.difficulty = 2;
+    difficultyBtn.textContent = 'Difficulty: Expert';
+  } else {
+    gameState.difficulty = 1;
+    difficultyBtn.textContent = 'Difficulty: Normal';
+  }
+});
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const tabId = btn.getAttribute('data-tab');
+    document.getElementById(`${tabId}Menu`).classList.add('active');
+  });
+});
+const sharpEyesBtn = document.getElementById('sharpEyesBtn');
+sharpEyesBtn.addEventListener('click', () => {
+  gameState.sharpEyes = !gameState.sharpEyes;
+  sharpEyesBtn.textContent = `Sharp Eyes: ${gameState.sharpEyes ? 'ON' : 'OFF'}`;
+});
+const biggerMusclesBtn = document.getElementById('biggerMusclesBtn');
+biggerMusclesBtn.addEventListener('click', () => {
+  gameState.biggerMuscles = !gameState.biggerMuscles;
+  biggerMusclesBtn.textContent = `Bigger Muscles: ${gameState.biggerMuscles ? 'ON' : 'OFF'}`;
+});
+const lazyEnemiesBtn = document.getElementById('lazyEnemiesBtn');
+lazyEnemiesBtn.addEventListener('click', () => {
+  gameState.lazyEnemies = !gameState.lazyEnemies;
+  lazyEnemiesBtn.textContent = `Lazy Enemies: ${gameState.lazyEnemies ? 'ON' : 'OFF'}`;
+});
+const weakerEnemiesBtn = document.getElementById('weakerEnemiesBtn');
+weakerEnemiesBtn.addEventListener('click', () => {
+  gameState.weakerEnemies = !gameState.weakerEnemies;
+  weakerEnemiesBtn.textContent = `Weaker Enemies: ${gameState.weakerEnemies ? 'ON' : 'OFF'}`;
+});
+document.getElementById('extremeBtn').addEventListener('click', () => {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('extremeBtn').classList.add('selected');
+  selectedDifficulty = 'extreme';
+});
+function isOnPath(x, y) {
+  const path = gameState.path;
+  const A = {
+    x: path[0].x,
+    y: path[0].y
+  };
+  const B = {
+    x: path[1].x,
+    y: path[1].y
+  };
+  const AB = {
+    x: B.x - A.x,
+    y: B.y - A.y
+  };
+  const AP = {
+    x: x - A.x,
+    y: y - A.y
+  };
+  const ab2 = AB.x * AB.x + AB.y * AB.y;
+  const ap_ab = AP.x * AB.x + AP.y * AB.y;
+  const t = Math.max(0, Math.min(1, ap_ab / ab2));
+  const proj = {
+    x: A.x + AB.x * t,
+    y: A.y + AB.y * t
+  };
+  const distance = Math.hypot(x - proj.x, y - proj.y);
+  return distance < 40;
+}
+function isOnTree(x, y) {
+  return trees.some(tree => Math.hypot(x - tree.x, y - tree.y) < 40);
+}
+function isOnCliff(x, y) {
+  return cliffs.some(cliff => Math.hypot(x - cliff.x, y - cliff.y) < cliff.radius);
+}
+function getDifficultyMultiplier() {
+  return selectedDifficulty === 'easy' ? 0.75 : selectedDifficulty === 'hard' ? 1.5 : selectedDifficulty === 'extreme' ? 2 : 1;
+}
+function gameLoop() {
+  if (mainMenuVisible) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+  if (gameState.gameOver) {
+    gameOverElement.style.display = 'block';
+    document.getElementById('retryButton').style.display = 'block';
+    return;
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  ctx.moveTo(gameState.path[0].x, gameState.path[0].y);
+  ctx.lineTo(gameState.path[1].x, gameState.path[1].y);
+  ctx.strokeStyle = '#b0b0b0';
+  ctx.lineWidth = 40;
+  ctx.stroke();
+  ctx.lineWidth = 1;
+  spawnEnemy();
+  ctx.fillStyle = '#2D5A27';
+  for (const tree of trees) {
+    ctx.beginPath();
+    ctx.arc(tree.x, tree.y, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#3A7A33';
+    ctx.beginPath();
+    ctx.arc(tree.x - 5, tree.y - 5, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2D5A27';
+  }
+  ctx.fillStyle = '#696969';
+  for (const cliff of cliffs) {
+    ctx.beginPath();
+    ctx.arc(cliff.x, cliff.y, cliff.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#404040';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cliff.x, cliff.y, cliff.radius - 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  for (let tower of gameState.towers) {
+    tower.draw();
+    tower.shoot();
+  }
+  gameState.enemies = gameState.enemies.filter(enemy => {
+    enemy.move();
+    enemy.draw();
+    if (enemy.hp <= 0) {
+      gameState.money += 10;
+      if (enemy.type === 'boss') {
+        document.getElementById('victoryScreen').style.display = 'block';
+        gameState.gameOver = true;
+        return false;
+      }
+      return false;
+    }
+    if (enemy.x > canvas.width) {
+      gameState.lives -= 1;
+      livesElement.textContent = `Lives: ${gameState.lives}`;
+      if (gameState.lives <= 0) {
+        gameState.gameOver = true;
+      }
+      return false;
+    }
+    return true;
+  });
+  if (gameState.waveComplete && gameState.enemies.length === 0 && !gameState.waveBonusGiven) {
+    const difficultyMultiplier = selectedDifficulty === 'easy' ? 0.75 : selectedDifficulty === 'hard' ? 1.5 : 1;
+    const waveBonus = Math.floor((50 + (gameState.currentWave - 1) * 25) * difficultyMultiplier);
+    gameState.money += waveBonus;
+    gameState.waveBonusGiven = true;
+    const bonusText = document.createElement('div');
+    bonusText.style.position = 'fixed';
+    bonusText.style.top = '50%';
+    bonusText.style.left = '50%';
+    bonusText.style.transform = 'translate(-50%, -50%)';
+    bonusText.style.color = '#4CAF50';
+    bonusText.style.fontSize = '24px';
+    bonusText.style.fontFamily = 'Arial, sans-serif';
+    bonusText.textContent = `Wave ${gameState.currentWave} Completed! Bonus: $${waveBonus}`;
+    document.body.appendChild(bonusText);
+    setTimeout(() => {
+      document.body.removeChild(bonusText);
+    }, 2000);
+  }
+  if (!gameState.waveComplete) {
+    gameState.waveBonusGiven = false;
+  }
+  const multiplier = getDifficultyMultiplier();
+  document.querySelector('[data-tower="noob"]').textContent = `Place Noob Tower ($${Math.floor(50 * multiplier)})`;
+  document.querySelector('[data-tower="casual"]').textContent = `Place Casual Tower ($${Math.floor(150 * multiplier)})`;
+  document.querySelector('[data-tower="intermediate"]').textContent = `Place Intermediate Tower ($${Math.floor(250 * multiplier)})`;
+  document.querySelector('[data-tower="semipro"]').textContent = `Place Semi-Pro Tower ($${Math.floor(300 * multiplier)})`;
+  document.querySelector('[data-tower="pro"]').textContent = `Place Pro Tower ($${Math.floor(500 * multiplier)})`;
+  document.getElementById('money').textContent = `Money: $${gameState.money}`;
+  if (gameState.placing && placementGhost) {
+    ctx.beginPath();
+    ctx.arc(placementGhost.x, placementGhost.y, 20, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(74, 74, 74, 0.5)';
+    ctx.fill();
+    ctx.beginPath();
+    const ghostRange = gameState.sharpEyes ? 100 * 1.5 : 100;
+    ctx.arc(placementGhost.x, placementGhost.y, ghostRange, 0, Math.PI * 2);
+    ctx.strokeStyle = placementGhost.isValid ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)';
+    ctx.stroke();
+  }
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();
+document.getElementById('startGameBtn').addEventListener('click', hideMainMenu);
+document.getElementById('howToPlayBtn').addEventListener('click', showHowToPlay);
+document.getElementById('easyBtn').addEventListener('click', () => {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('easyBtn').classList.add('selected');
+  selectedDifficulty = 'easy';
+});
+document.getElementById('normalBtn').addEventListener('click', () => {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('normalBtn').classList.add('selected');
+  selectedDifficulty = 'normal';
+});
+document.getElementById('hardBtn').addEventListener('click', () => {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('hardBtn').classList.add('selected');
+  selectedDifficulty = 'hard';
+});
+document.getElementById('normalBtn').classList.add('selected');
+document.getElementById('playBtn').addEventListener('click', () => {
+  document.getElementById('playBtn').style.display = 'none';
+  document.getElementById('difficultySelect').style.display = 'flex';
+});</script>
+</body>
+</html>
